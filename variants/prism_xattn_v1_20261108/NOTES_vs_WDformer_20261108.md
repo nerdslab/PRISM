@@ -9,7 +9,7 @@ layers/Transformer_EncDec.py} and variants/prism_xattn_v1_20261108/prism_xattn.p
 | what crosses channels | the whole waveform content (phase, shape) of every other variate, 4 differential-attention layers with SwiGLU FFN, d=512 | 6 amplitude/roughness scalars per channel; attention output is a 128-d context vector |
 | how the forecast uses it | projector Linear(512 -> H) reads the mixed token directly and is inverted by waverec: another sensor's history can be written into this sensor's future | (a) 16-d context concatenated to the router MLP input: only re-weights this channel's own bands; (b) FiLM y*(1+alpha)+beta with alpha,beta in R^H: per-step affine correction of this channel's own forecast. No path by which channel j's waveform shapes channel i's forecast |
 | normalisation | instance norm per channel (mean/std over time) | SeriesNorm per channel (same idea) |
-| loss / optimiser | MSE, lr 1e-3 halving every epoch (type1), batch 16, 10 epochs, patience 3 | MAE, lr 1e-4 x 0.95 per epoch, batch 64, up to 500 epochs (fast-stop batch: patience 3, delta 5e-4) |
+| loss / optimiser | MSE, lr 1e-3 halving every epoch (type1), batch 16, 10 epochs, patience 3 | MAE, Adam at constant lr 1e-4 (the exp code has adjust_learning_rate commented out, so --lradj does nothing), batch 64, up to 500 epochs (fast-stop batch: patience 3, delta 5e-4) |
 | size at traffic | about 15 M parameters (4 layers x [QKV 3x512x1024 + out 1024x512 + SwiGLU 3x512x1024]), estimate from layer shapes | PRISM 1.3 M + 0.44 M for the context path |
 | ctx-336 traffic H96 | MSE 0.353 / MAE 0.252 after 10 epochs (93 s each) | base 0.407 / 0.263 at epoch 28 (fast stop); xattn 0.409 / 0.267 at epoch 15 |
 

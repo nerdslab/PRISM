@@ -1,0 +1,8 @@
+x2 traffic 96
+base traffic 96
+x2 traffic 192
+base traffic 192
+x2 traffic 336
+base traffic 336
+x2 traffic 720
+base traffic 720

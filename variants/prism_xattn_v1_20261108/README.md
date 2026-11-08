@@ -56,7 +56,29 @@ Test MSE / MAE from the per-epoch log lines (stop epoch in brackets).
 | 96 | 0.407 / 0.263 (28) | 0.409 / 0.267 (15) |
 | 192 | 0.415 / 0.267 (33) | 0.417 / 0.273 (20) |
 | 336 | 0.427 / 0.275 (31) | 0.442 / 0.288 (26) |
-| 720 | running at commit time, 0.458 / 0.299 at epoch 16 | 0.462 / 0.300 (19) |
+| 720 | 0.456 / 0.292 (36) | 0.462 / 0.300 (19) |
 
 xattn is ahead for the first ~5 epochs, then reaches the same plateau and stops earlier. No gain on traffic.
 The 1-GPU base matches the original 2-GPU Table-1 log epoch by epoch. See NOTES_vs_WDformer_20261108.md for why.
+
+## v2 (2026-11-08 afternoon): WDformer-style tokens + WDformer recipe
+
+User request: the traffic gap looks like a loss / lr / batch-size issue, and the channel token should carry what
+WDformer's does. Files: `prism_xattn_v2_20261108.py` (model, subclasses v1), `run_prism_xattn_v2.py` (entry, adds
+`--xattn_token stats|wave|both`, `--xattn_layers`, `--xattn_readout`, `--lr_halve`), `run_x2_one.sh`,
+`submit_x2.sbatch`, `jobs_x2.txt`; results in `logs/runs_v2.txt` (END lines already relabelled MSE=/MAE=).
+
+Model: token = 6 band statistics (v1) + orthonormal Haar wavedec (level 4) of the normalised history with one
+Linear per band into slices of d=256 (WDformer `DataEmbedding_wd`), + channel-identity embedding; 2 pre-LN
+self-attention blocks; zero-initialised residual read-out Linear(256 -> H) added to the forecast, plus the v1
+alpha and FiLM paths. Extra parameters on traffic: 1.94 M (PRISM itself 1.3 M). `--xattn 0` is still exactly PRISM.
+
+Recipe (= WDformer traffic script): MSE loss, Adam lr 1e-3 halved after every epoch (the PRISM exp code never calls
+adjust_learning_rate, so the halving is emulated in the entry), batch 16, 10 epochs, patience 3. Both `x2` and
+`base` are run under this recipe. Correction to the earlier note: PRISM's own runs train at a constant lr 1e-4,
+`--lradj` has no effect.
+
+- 2026-11-08 12:40: CPU smoke passed (shapes, finite, Haar orthonormality, on/off identity 0.0). Submitted
+  traffic H96 pair (x2 + base) as 10247585; the other six horizons are submitted automatically once the first
+  epoch of x2 H96 finishes cleanly.
+- 2026-11-08 13:30: first pair failed at argparse (--lr abbreviated to --lr_halve); fixed with allow_abbrev=False, resubmitted as 10251965.
