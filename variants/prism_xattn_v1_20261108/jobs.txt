@@ -1,0 +1,16 @@
+base traffic 96
+base traffic 192
+base traffic 336
+base traffic 720
+base electricity 96
+base electricity 192
+base electricity 336
+base electricity 720
+xattn traffic 96
+xattn traffic 192
+xattn traffic 336
+xattn traffic 720
+xattn electricity 96
+xattn electricity 192
+xattn electricity 336
+xattn electricity 720

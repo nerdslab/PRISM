@@ -1,0 +1,8 @@
+xattn traffic 96
+xattn traffic 192
+xattn traffic 336
+xattn traffic 720
+base traffic 96
+base traffic 192
+base traffic 336
+base traffic 720
