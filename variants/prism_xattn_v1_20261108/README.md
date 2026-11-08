@@ -82,3 +82,10 @@ adjust_learning_rate, so the halving is emulated in the entry), batch 16, 10 epo
   traffic H96 pair (x2 + base) as 10247585; the other six horizons are submitted automatically once the first
   epoch of x2 H96 finishes cleanly.
 - 2026-11-08 13:30: first pair failed at argparse (--lr abbreviated to --lr_halve); fixed with allow_abbrev=False, resubmitted as 10251965.
+- 2026-11-08 14:05: x2 H96 done (10251965_0, 13 min): test MSE 0.360 / MAE 0.255 after 10 epochs (WDformer ctx-336: 0.353 / 0.252;
+  v1 base fast-stop 0.407 / 0.263). The auto-submit watcher aborted on the stale error line of the first attempt's log,
+  so the remaining six (jobs_x2.txt lines 3-8) were submitted by hand as 10258688; base H96 (10251965_1) still queued.
+- 2026-11-08 16:53: same-recipe base H96 done (10251965_1, early stop at epoch 8, best val epoch 5): test MSE 0.388 / MAE 0.271.
+  Attribution on traffic H96 (seed 15): recipe alone (MAE loss/lr 1e-4/bs 64 -> MSE loss/lr 1e-3 halving/bs 16) 0.407 -> 0.388;
+  Haar tokens + residual read-out on top of that recipe 0.388 -> 0.360. Both selected by best val loss. Remaining six
+  (10258688_[2-7]) still queued; Slurm start estimate 2026-11-11.
