@@ -91,3 +91,22 @@ adjust_learning_rate, so the halving is emulated in the entry), batch 16, 10 epo
   (10258688_[2-7]) still queued; Slurm start estimate 2026-11-11.
 - 2026-11-09: remaining six cluster jobs (10258688_[2-7]) cancelled at the user's request because the same runs are tier 1a of
   the handoff package (handoff_prism_rebuttal_20261108); results for H=192/336/720 will come from the workstation/vast run.
+
+## v2 results: traffic, all horizons (seed 15, WDformer recipe, best-val checkpoint) — merged 2026-11-09
+
+H96 pair ran on the cluster (MIG); H192 x2 ran on vast (RTX 4080S); the rest on the workstation (RTX 5090). The
+workstation re-ran base H96 and reproduced the cluster number to 4 decimals (0.38782 vs 0.38783). Logs from the other
+machines are copied under `logs/<tag>/traffic_cont336_M/` (`*.ws.log` where a cluster log already existed); END lines
+in `logs/runs_v2.txt` carry a `[workstation ...]` / `[vast ...]` suffix.
+
+| H | base, same recipe | x2 (Haar tokens + read-out) | WDformer ctx-336 (our rerun) | PRISM Table 1 (reported) | PRISM full-length local log (seed 15) |
+|---|---|---|---|---|---|
+| 96  | 0.388 / 0.271 | 0.360 / 0.255 | 0.353 / 0.252 | 0.362 / 0.237 | 0.393 / 0.252 |
+| 192 | 0.406 / 0.278 | 0.385 / 0.265 | 0.367 / 0.262 | 0.376 / 0.244 | 0.410 / 0.261 |
+| 336 | 0.419 / 0.285 | 0.400 / 0.272 (early stop ep 5) | 0.376 / 0.265 | 0.401 / 0.257 | 0.427 / 0.272 |
+| 720 | 0.448 / 0.302 | 0.444 / 0.291 | 0.402 / 0.276 | 0.433 / 0.271 | — |
+
+Reading: cross-channel tokens help by 0.028 / 0.021 / 0.019 / 0.004 MSE over the same-recipe base, shrinking with H;
+x2 closes most of the gap to WDformer at H=96 but not at H>=336. Against the reported Table-1 PRISM numbers x2 is at
+best a tie on MSE and worse on MAE (MSE-loss training). The H=336 run early-stopped at epoch 5 under the
+patience-3 rule, so it may be under-trained. v2 is a different model and recipe; it is not a drop-in for the PRISM column.

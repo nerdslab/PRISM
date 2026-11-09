@@ -20,3 +20,20 @@ paper's "dropout 0.5" on Exchange is a no-op. `run_prism.py`'s final line `test 
 
 ## Log
 - 2026-11-08 16:05: grid submitted (job id in `.last_grid_jobid`).
+
+## Result (workstation RTX 5090, 2026-11-08; logs merged here 2026-11-09)
+
+All 9 configs x 4 horizons finished (`logs/runs.txt`, `logs/selection.txt`). Selection by lowest validation MSE:
+
+| H | selected | test MSE / MAE | ref (unchanged PRISM) | DLinear ctx-336 |
+|---|---|---|---|---|
+| 96  | lin_mse_lr5e-4 | 0.086 / 0.204 | 0.083 / 0.204 | 0.081 / 0.203 |
+| 192 | lin_lr1e-3     | 0.178 / 0.299 | 0.178 / 0.304 | 0.157 / 0.293 |
+| 336 | lin            | 0.333 / 0.416 | 0.325 / 0.417 | 0.305 / 0.414 |
+| 720 | ref            | 0.959 / 0.756 | 0.959 / 0.756 | 0.643 / 0.601 |
+
+No configuration beats DLinear at any horizon, not even when cherry-picking the best test number (H96 best 0.082,
+H192 0.174, H336 0.325, H720 0.947). At H=720 every run has its best validation loss at epoch 0 and stops after the
+25-epoch patience; training only moves the model away from the near-persistence solution that DLinear converges to.
+Linear heads / no-SE change exchange by at most 0.01 at H<=336 and do not address the H=720 failure. Also note that
+the unchanged `ref` config gives 0.959 at H=720 versus 0.712 in Table 1 (seed 11 here, Table 1 provenance unclear).
