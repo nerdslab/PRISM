@@ -37,3 +37,20 @@ H192 0.174, H336 0.325, H720 0.947). At H=720 every run has its best validation 
 25-epoch patience; training only moves the model away from the near-persistence solution that DLinear converges to.
 Linear heads / no-SE change exchange by at most 0.01 at H<=336 and do not address the H=720 failure. Also note that
 the unchanged `ref` config gives 0.959 at H=720 versus 0.712 in Table 1 (seed 11 here, Table 1 provenance unclear).
+
+## H720 controls (2026-11-09, approved by the user)
+
+Question: is the exchange H=720 gap to DLinear (0.959 vs 0.643) caused by the input-dependent band gating, by the
+per-window instance normalisation, or by the training budget?  Four short runs, all exchange, ctx 336, H 720:
+
+| run | model | recipe | isolates |
+|---|---|---|---|
+| ctl_constgate_dlrecipe | PRISM-Linear, gates frozen to uniform (affine map of the normalised window, checked: residual 1e-6) | DLinear's: MSE, bs 32, lr 5e-3 halved per epoch, 10 ep, patience 3, best-val weights | gating + budget removed, instance norm kept |
+| ctl_gate_dlrecipe | PRISM-Linear, learned gates | same | budget removed, gating kept |
+| DLinear in0 | released DLinear | released recipe | sanity check vs 0.643 / 0.601 |
+| DLinear in1 | DLinear wrapped in SeriesNorm (variants/dlinear_instnorm_20261109) | released recipe | instance norm added to DLinear |
+
+Entry: `run_prism_linear_v2.py` (--const_gate, --lr_halve, --load_best), driver `run_h720_controls.sh`,
+Slurm `submit_h720_controls.sbatch` (job 10303855, mig queue). The same four runs are packaged for the workstation as
+handoff addon `addon_h720_controls_20261109.tar.gz`. Results go to `logs/runs_controls.txt` and
+`../dlinear_instnorm_20261109/logs/runs.txt`.
