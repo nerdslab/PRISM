@@ -89,3 +89,5 @@ adjust_learning_rate, so the halving is emulated in the entry), batch 16, 10 epo
   Attribution on traffic H96 (seed 15): recipe alone (MAE loss/lr 1e-4/bs 64 -> MSE loss/lr 1e-3 halving/bs 16) 0.407 -> 0.388;
   Haar tokens + residual read-out on top of that recipe 0.388 -> 0.360. Both selected by best val loss. Remaining six
   (10258688_[2-7]) still queued; Slurm start estimate 2026-11-11.
+- 2026-11-09: remaining six cluster jobs (10258688_[2-7]) cancelled at the user's request because the same runs are tier 1a of
+  the handoff package (handoff_prism_rebuttal_20261108); results for H=192/336/720 will come from the workstation/vast run.
